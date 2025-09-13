@@ -45,6 +45,7 @@ model User {
   updatedAt   DateTime @updatedAt
   property  Property[]  @relation("userproperties")
 
+
   @@map("users")
 }
 
@@ -54,15 +55,21 @@ model Property {
   description String?
   price Float
   address String
-  coordinates  Unsupported("geometry(point, 4326)")?
-  latitude  Float?
-  longitude  Float?
   status PropertyStatus
   type PropertyType
   ownerId  Int @unique
   owner User  @relation("userproperties", fields: [ownerId], references: [id], onDelete: Cascade)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  images PropertyImage[]
 
   @@map("properties")
+}
+
+model PropertyImage {
+  id Int @default(autoincrement()) @id
+  url String
+  publicId  String?
+  propertyId Int
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 }

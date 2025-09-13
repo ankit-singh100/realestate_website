@@ -1,9 +1,7 @@
 import { Type } from 'class-transformer';
 import {
-  IsEnum,
   IsNumber,
   IsOptional,
-  IsPositive,
   IsString,
   Min,
 } from 'class-validator';
@@ -38,13 +36,4 @@ export class PaginationQueryDto {
   @IsNumber()
   @Min(0)
   maxPrice?: number;
-
-  @IsOptional()
-  lat?: number;
-
-  @IsOptional()
-  lng?: number;
-
-  @IsOptional()
-  radiuskm?: number;
 }

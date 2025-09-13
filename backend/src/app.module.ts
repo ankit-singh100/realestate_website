@@ -6,7 +6,8 @@ import { UsersModule } from './users/users.module';
 import { AuthService } from './auth/auth.service';
 import { ConfigModule } from '@nestjs/config';
 import { CloudinaryService } from './cloudinary/cloudinary.service';
-import { ProertiesModule } from './proerties/proerties.module';
+import { PropertiesModule } from './properties/proerties.module';
+import { PropertyImageModule } from './property-image/property-image.module';
 
 @Module({
   imports: [
@@ -14,7 +15,8 @@ import { ProertiesModule } from './proerties/proerties.module';
     AuthModule,
     PrismaModule,
     UsersModule,
-    ProertiesModule,
+    PropertiesModule,
+    PropertyImageModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, CloudinaryService],

@@ -32,13 +32,5 @@ export class CreateProertyDto {
   type: PropertyType;
 
   @IsNumber()
-  @IsOptional()
-  latitude: number;
-
-  @IsNumber()
-  @IsOptional()
-  longitude: number;
-
-  @IsNumber()
   ownerId: number;
 }
