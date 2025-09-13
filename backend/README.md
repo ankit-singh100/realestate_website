@@ -12,7 +12,6 @@ Supports user authentication, property management, and image uploads.
 - Upload & manage property images (Cloudinary)
 - Old images auto-deleted when replaced
 - Prisma ORM with PostgreSQL
-- Ready for PostGIS (location queries)
 
 ---
 
