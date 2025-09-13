@@ -9,7 +9,11 @@ import Contact from "../page/Contact";
 import Home from "../page/Home";
 import type { JSX } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import EditProfile from "@/components/profile/EditProfile";
+import EditProfile from "../components/profile/EditProfile";
+import PropertyList from "../page/properties/PropertyListPage";
+import PropertyDetail from "../page/properties/PropertyDetailPage";
+import PropertyCreate from "@/page/properties/PropertyCreate";
+import PropertyEdit from "@/page/properties/PropertyEditPage";
 
 function PrivateRoute({ children }: { children: JSX.Element }) {
   const { user } = useAuth();
@@ -30,6 +34,8 @@ export default function AppRoutes() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/properties" element={<PropertyList />} />
+            <Route path="/properties/:id" element={<PropertyDetail />} />
 
             {/* protected routes */}
             <Route
@@ -40,13 +46,32 @@ export default function AppRoutes() {
                 </PrivateRoute>
               }
             />
-            <Route path="/profile/edit" element={<EditProfile />} />
+            <Route
+              path="/profile/:id"
+              element={
+                <PrivateRoute>
+                  <EditProfile />
+                </PrivateRoute>
+              }
+            />
 
             {/* Properties */}
-            {/* <Route path="/proprties" element={<PropertyListPage/>}/> 
-            <Route path="/properties/:id" elemen={<PropertyDetailPage/>}/>
-            <Route path="/properties/create" element={<PrivateRoute><PropertyCreatePage/></PrivateRoute>}/>
-            <Route path="/properties/:id/edit" element={<PrivateRoute><PropertyEditPage/></PrivateRoute>}*/}
+            <Route
+              path="/properties"
+              element={
+                <PrivateRoute>
+                  <PropertyCreate />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/properties/:id"
+              element={
+                <PrivateRoute>
+                  <PropertyEdit />
+                </PrivateRoute>
+              }
+            />
 
             {/* Admin Routes */}
             {/* <Route path="/admin" element={<AdminRoutes/>}/> */}
