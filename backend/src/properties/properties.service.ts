@@ -21,7 +21,7 @@ export class PropertiesService {
   }
 
   async findAll(paginationDto: PaginationQueryDto) {
-    const {
+    let {
       page = 1,
       limit = 10,
       search,
@@ -30,6 +30,11 @@ export class PropertiesService {
       minPrice,
       maxPrice,
     } = paginationDto;
+
+    // ensure numbers
+    page = Number(page);
+    limit = Number(limit);
+
     if (limit > 100) {
       throw new BadRequestException('Limit cannot exceed 100');
     }
@@ -60,8 +65,7 @@ export class PropertiesService {
       throw new BadRequestException('Page and limit must be valid numbers');
     }
 
-    const take = limit;
-    const skip = (page - 1) * take;
+    const skip = (page - 1) * limit;
 
     const where: any = {};
 
@@ -82,7 +86,7 @@ export class PropertiesService {
     const [properties, total] = await Promise.all([
       this.prismaService.property.findMany({
         skip,
-        take,
+        take: limit,
         where,
         include: { images: true },
       }),
@@ -92,7 +96,7 @@ export class PropertiesService {
     return {
       totalProperties: total,
       currentPage: page,
-      limit: take,
+      limit,
       data: properties,
     };
   }
