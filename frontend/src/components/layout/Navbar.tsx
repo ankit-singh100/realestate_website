@@ -37,7 +37,10 @@ export function Navbar() {
             <Link to="/contact" className="text-gray-700 hover:text-blue-600">
               Contact
             </Link>
-            <Link to="/property" className="text-gray-700 hover:text-blue-600">
+            <Link
+              to="/properties"
+              className="text-gray-700 hover:text-blue-600"
+            >
               Property
             </Link>
 
@@ -137,7 +140,7 @@ export function Navbar() {
             Contact
           </Link>
           <Link
-            to="/property"
+            to="/properties"
             className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-blue-600"
           >
             Property

@@ -1,13 +1,13 @@
 import { Link } from "react-router-dom";
-import image from "../../assets/image/image.jpg";
+// import image from "../../assets/image/image.jpg";
 
 interface PropertyCardProps {
   id: number;
   title: string;
-  description?: number;
+  description?: string;
   price: number;
   address: string;
-  imagesUrl?: string;
+  imagesUrl?: { url: string }[];
   status: "Available" | "Sold" | "Rented" | "Pending";
   type: "House" | "Apartment" | "Land";
   owner?: {
@@ -19,6 +19,7 @@ interface PropertyCardProps {
 const PropertyCard: React.FC<PropertyCardProps> = ({
   id,
   title,
+  description,
   price,
   address,
   imagesUrl,
@@ -31,8 +32,8 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
       {/* Property Image */}
       <Link to={`properties/${id}`}>
         <img
-          src={image}
-          alt="House"
+          src={imagesUrl?.[0]?.url || "https://via.placeholder.com/400x300"}
+          alt={title}
           className="w-full h-48 object-cover rounded-lg mb-2"
         />
         <span
@@ -46,20 +47,22 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
               : "bg-gray-100 text-gray-700"
           }`}
         >
-          Type
+          {type}
         </span>
       </Link>
       {/* Content */}
       <div className="flex-1 flex flex-col justify-betweenmt-3">
         <div>
-          <h3 className="text-lg font-semibold line-clamp-1">title</h3>
-          <h3 className="text-black text-sm">Description</h3>
-          <p className="text-gray-500 text-sm">address</p>
+          <h3 className="text-lg font-semibold line-clamp-1">{title}</h3>
+          <h3 className="text-black text-sm">{description}</h3>
+          <p className="text-gray-500 text-sm">{address}</p>
         </div>
 
         {/* Price & status */}
         <div className="mt-3 flex items-center justify-between">
-          <span className="text-blue-600 font-bold">Rs.20000</span>
+          <span className="text-blue-600 font-bold">
+            Rs.{price.toLocaleString()}
+          </span>
           <span
             className={`text-xs px-2 py-1 rounded-full ${
               status === "Available"
@@ -73,7 +76,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
                 : "bg-gray-100 text-gray-700"
             }`}
           >
-            Status
+            {status}
           </span>
         </div>
 
@@ -82,7 +85,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
           <div>
             <img
               src={owner.avatarUrl || "https://via.placeholder.com/40"}
-              alt="Jhone Doe"
+              alt={owner.name}
               className="w-8 h-8 rounded-full object-cover"
             />
             <span className="text-sm text-gray-700">Jhon Doe</span>

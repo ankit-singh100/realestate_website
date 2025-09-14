@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  token: string | null;
   login: (name: string, password: string) => Promise<void>;
   register: (
     name: string,
@@ -18,28 +19,33 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(
+    localStorage.getItem("token")
+  );
   const [loading, setLoading] = useState(true);
 
   // load user on app start
   useEffect(() => {
     async () => {
+      if (!token) return;
       try {
         const profile = await authApi.getProfile();
         setUser(profile.data);
-      } catch {
-        setUser(null);
+      } catch (err) {
+        console.error("Failed to fetch profile:", err);
+        logout();
       } finally {
         setLoading(false);
       }
     };
-  });
+  }, [token]);
 
   // login
   const login = async (email: string, password: string): Promise<void> => {
     const res = await authApi.login({ email, password });
-    const token = res.data.token;
-    localStorage.setItem("token", token);
     setUser(res.data.user);
+    setToken(res.data.token);
+    localStorage.setItem("token", res.data.token);
   };
 
   // register
@@ -51,15 +57,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   ): Promise<void> => {
     const res = await authApi.register({ name, email, password, role });
     setUser(res.data.user);
+    setToken(res.data.token);
+    localStorage.setItem("token", res.data.token);
   };
 
   const logout = async () => {
-    await authApi.logout();
     setUser(null);
+    setToken(null);
+    localStorage.removeItem("token");
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider
+      value={{ user, token, loading, login, register, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

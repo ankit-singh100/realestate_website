@@ -4,11 +4,11 @@ import Input from "../ui/Input";
 import { Button } from "../ui/Button";
 interface PropertyCardProps {
   title: string;
-  description?: number;
+  description?: string;
   price: number;
   address: string;
   imagesUrl?: string;
-  status: "Available" | "Sold" | "Rented" | "Pending";
+  status: "Available" | "Sold" | "Pending";
   type: "House" | "Apartment" | "Land";
   owner?: {
     name: string;

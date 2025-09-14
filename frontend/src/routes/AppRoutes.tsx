@@ -11,7 +11,7 @@ import type { JSX } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import EditProfile from "../components/profile/EditProfile";
 import PropertyList from "../page/properties/PropertyListPage";
-import PropertyDetail from "../page/properties/PropertyDetailPage";
+// import PropertyDetail from "../page/properties/PropertyDetailPage";
 import PropertyCreate from "@/page/properties/PropertyCreate";
 import PropertyEdit from "@/page/properties/PropertyEditPage";
 
@@ -35,7 +35,6 @@ export default function AppRoutes() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/properties" element={<PropertyList />} />
-            <Route path="/properties/:id" element={<PropertyDetail />} />
 
             {/* protected routes */}
             <Route
@@ -72,6 +71,7 @@ export default function AppRoutes() {
                 </PrivateRoute>
               }
             />
+            {/* <Route path="/properties/:id" element={<PrivateRoute><PropertyDetail /></PrivateRoute>} /> */}
 
             {/* Admin Routes */}
             {/* <Route path="/admin" element={<AdminRoutes/>}/> */}
