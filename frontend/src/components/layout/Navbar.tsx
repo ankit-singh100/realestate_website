@@ -14,7 +14,7 @@ export function Navbar() {
         <div className="flex justify-between h-16 items-center">
           <HomeIcon />
           <div className="text-2xl font-bold text-blue-600 ">
-            <Link to="/">PropMart</Link>
+            <Link to="/">BiratEstate</Link>
           </div>
 
           {/* Search Bar Desktop */}
@@ -59,7 +59,7 @@ export function Navbar() {
                   onClick={() => setOpen(!open)}
                 >
                   <img
-                    src={user?.avatarUrl || "https://i.pravatar.cc/120"}
+                    src={user?.avatarUrl}
                     alt={user?.name}
                     className="w-8 h-6 rounded-full"
                   />
@@ -86,6 +86,18 @@ export function Navbar() {
                     >
                       Logout
                     </button>
+
+                    {/* Show only if role = admin or owner */}
+                    {user &&
+                      (user.role === "Admin" || user.role === "Owner") && (
+                        <NavLink
+                          to="/properties-add"
+                          className="block px-4 py-2 hover:bg-gray-100"
+                          onClick={() => setOpen(false)}
+                        >
+                          Add Property
+                        </NavLink>
+                      )}
                   </div>
                 )}
               </div>
@@ -161,7 +173,7 @@ export function Navbar() {
                 className="flex items-center gap-2 py-1 px-1  rounded-full bg-gray-200 hover:bg-gray-300 transition"
               >
                 <img
-                  src={user.avatarUrl || "https://i.pravatar.cc/120"}
+                  src={user.avatarUrl}
                   alt={user.name}
                   className="w-9.5 h-9.5 rounded-2xl"
                 />
@@ -188,6 +200,16 @@ export function Navbar() {
                   >
                     Logout
                   </button>
+                  {/* Show only if role = admin or owner */}
+                  {user && (user.role === "Admin" || user.role === "Owner") && (
+                    <NavLink
+                      to="/properties-add"
+                      className="block px-4 py-2 hover:bg-gray-100 rounded-lg"
+                      onClick={() => setOpen(false)}
+                    >
+                      Add Property
+                    </NavLink>
+                  )}
                 </div>
               )}
             </div>

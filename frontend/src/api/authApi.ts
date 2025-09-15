@@ -5,10 +5,10 @@ export interface User {
   name: string;
   email: string;
   avatarUrl?: string;
-  role?: "user" | "admin" | "Customer";
+  role?: "Owner" | "Admin" | "Customer";
 }
 
- interface AuthResponse {
+interface AuthResponse {
   user: User;
   token: string;
 }

@@ -14,10 +14,11 @@ export interface Property {
 }
 
 //interface for image
-interface PropertyImage {
+export interface PropertyImage {
   id: number;
   url: string;
-  publicId: string;
+  publicId?: string;
+  propertyId?: number;
 }
 
 interface paginationProperties {
@@ -37,7 +38,7 @@ const propertyApi = {
 
   //   get single property by id
   getById: async (id: number) => {
-    const res = await api.get<Property>(`/properties/${id}`);
+    const res = await api.get<Property>(`/properties/get/${id}`);
     return res.data;
   },
 
@@ -62,9 +63,30 @@ const propertyApi = {
     return res.data;
   },
 
+  // Add propertyimage
+  upload: async (propertyId: number, file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await api.post<PropertyImage>(
+      `/property-image/${propertyId}`,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+    return res.data;
+  },
   // get propertyImage
   findAll: async () => {
-    const res = await api.post<PropertyImage>("/property-image");
+    const res = await api.get<PropertyImage>("/property-image");
+    return res.data;
+  },
+
+  // Delete image
+  deleteImage: async (propertyId: number) => {
+    const res = await api.delete<PropertyImage>(
+      `/property-image/${propertyId}`
+    );
     return res.data;
   },
 };

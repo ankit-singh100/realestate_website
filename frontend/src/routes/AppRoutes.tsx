@@ -14,6 +14,7 @@ import PropertyList from "../page/properties/PropertyListPage";
 // import PropertyDetail from "../page/properties/PropertyDetailPage";
 import PropertyCreate from "@/page/properties/PropertyCreate";
 import PropertyEdit from "@/page/properties/PropertyEditPage";
+import { PropertyDetail } from "@/page/properties/PropertyDetail";
 
 function PrivateRoute({ children }: { children: JSX.Element }) {
   const { user } = useAuth();
@@ -56,7 +57,7 @@ export default function AppRoutes() {
 
             {/* Properties */}
             <Route
-              path="/properties"
+              path="/properties/add"
               element={
                 <PrivateRoute>
                   <PropertyCreate />
@@ -64,7 +65,15 @@ export default function AppRoutes() {
               }
             />
             <Route
-              path="/properties/:id"
+              path="/properties/get/:id"
+              element={
+                <PrivateRoute>
+                  <PropertyDetail />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/properties/edit/:id"
               element={
                 <PrivateRoute>
                   <PropertyEdit />

@@ -30,7 +30,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   return (
     <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition p-4 flex flex-col">
       {/* Property Image */}
-      <Link to={`properties/${id}`}>
+      <Link to={`properties/get/${id}`}>
         <img
           src={imagesUrl?.[0]?.url || "https://via.placeholder.com/400x300"}
           alt={title}
