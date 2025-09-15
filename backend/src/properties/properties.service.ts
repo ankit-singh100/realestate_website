@@ -10,13 +10,9 @@ import { Prisma } from 'generated/prisma';
 @Injectable()
 export class PropertiesService {
   constructor(private readonly prismaService: PrismaService) {}
-  async create(id: number, createProertyDto: CreateProertyDto) {
-    await this.ensurePropertyExists(id);
+  async create(userId: number, createProertyDto: CreateProertyDto) {
     return this.prismaService.property.create({
-      data: createProertyDto,
-      include: {
-        images: true,
-      },
+      data: { ...createProertyDto, ownerId: userId },
     });
   }
 
@@ -111,7 +107,6 @@ export class PropertiesService {
   }
 
   async update(id: number, updateProertyDto: UpdateProertyDto) {
-    await this.ensurePropertyExists(id);
     return this.prismaService.property.update({
       where: { id },
       data: updateProertyDto,
@@ -119,7 +114,6 @@ export class PropertiesService {
   }
 
   async remove(id: number) {
-    await this.ensurePropertyExists(id);
     return this.prismaService.property.delete({
       where: { id },
     });

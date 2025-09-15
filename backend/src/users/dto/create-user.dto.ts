@@ -23,6 +23,10 @@ export class CreateUserDto {
 
   @IsEnum(Role)
   role: Role;
+
+  @IsOptional()
   avatarUrl?: string;
+
+  @IsOptional()
   avatarId?: string;
 }

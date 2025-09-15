@@ -57,7 +57,7 @@ model Property {
   address String
   status PropertyStatus
   type PropertyType
-  ownerId  Int @unique
+  ownerId  Int 
   owner User  @relation("userproperties", fields: [ownerId], references: [id], onDelete: Cascade)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt

@@ -30,7 +30,4 @@ export class CreateProertyDto {
 
   @IsEnum(PropertyType)
   type: PropertyType;
-
-  @IsNumber()
-  ownerId: number;
 }
