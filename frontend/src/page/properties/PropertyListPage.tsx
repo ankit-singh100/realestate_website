@@ -16,7 +16,7 @@ import { Link } from "react-router-dom";
 // }
 
 export default function PropertyList() {
-  const { user } = useAuth();
+  const { user, favorites, toggleFavorite } = useAuth();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +48,7 @@ export default function PropertyList() {
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <div>
+    <div className=" bg-gray-400 p-3">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold mb-6">Available Properties</h1>
         {/* Show add property button only if the user is admin or owner */}
@@ -73,6 +73,8 @@ export default function PropertyList() {
             status={property.status}
             type={property.type}
             imagesUrl={property.images} // pass the array from backend
+            isFavorite={favorites.some((p) => p.id === property.id)}
+            onToggleFavorite={() => toggleFavorite(property)}
           />
         ))}
       </div>

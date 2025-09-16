@@ -1,3 +1,4 @@
+// import { authApi } from "@/api/authApi";
 import Alert from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
@@ -31,8 +32,15 @@ export default function Login() {
         onSubmit={async (values, { setSubmitting }) => {
           setError(null);
           try {
-            await login(values.email, values.password);
-            navigate("/");
+            // 1. log in user
+            const loggedUser = await login(values.email, values.password);
+
+            // Redirect based on role
+            if (loggedUser.role === "Admin") {
+              navigate("/users/admin-dashboard");
+            } else {
+              navigate("/");
+            }
           } catch (err: any) {
             setError(err.response?.data?.message || "Invalid credentials");
           }

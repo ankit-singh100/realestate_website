@@ -1,4 +1,7 @@
-import { Link } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { Heart } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 // import image from "../../assets/image/image.jpg";
 
 interface PropertyCardProps {
@@ -14,6 +17,8 @@ interface PropertyCardProps {
     name: string;
     avatarUrl?: string;
   };
+  isFavorite?: boolean;
+  onToggleFavorite?: (id: number) => void;
 }
 
 const PropertyCard: React.FC<PropertyCardProps> = ({
@@ -26,7 +31,28 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   status = "Available",
   type,
   owner,
+  isFavorite = false,
+  onToggleFavorite,
 }) => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [favorite, setFavorite] = useState(isFavorite);
+
+  useEffect(() => {
+    setFavorite(isFavorite);
+  }, [isFavorite]);
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    if (!user) {
+      alert("please login to add to favorites");
+      navigate("/login");
+    }
+    e.preventDefault(); // prevent navigation when clicking the heart
+    setFavorite((prev) => !prev);
+    if (onToggleFavorite) {
+      onToggleFavorite(id);
+    }
+  };
   return (
     <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition p-4 flex flex-col">
       {/* Property Image */}
@@ -52,12 +78,23 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
       </Link>
       {/* Content */}
       <div className="flex-1 flex flex-col justify-betweenmt-3">
-        <div>
-          <h3 className="text-lg font-semibold line-clamp-1">{title}</h3>
+        <div className="relative">
+          <h3 className="text-lg font-semibold line-clamp- mb-3">{title}</h3>
+          {/* Favorite Button */}
+          <button
+            onClick={handleFavoriteClick}
+            className="absolute top-1 right-3 rounded-full p-2 shadow-md hover:bg-gray-300"
+          >
+            <Heart
+              size={20}
+              className={`${
+                favorite ? "fill-red-500 text-red-500" : "text-gray-900 border"
+              }`}
+            />
+          </button>
           <h3 className="text-black text-sm">{description}</h3>
           <p className="text-gray-500 text-sm">{address}</p>
         </div>
-
         {/* Price & status */}
         <div className="mt-3 flex items-center justify-between">
           <span className="text-blue-600 font-bold">
@@ -79,7 +116,6 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
             {status}
           </span>
         </div>
-
         {/* Owner Info */}
         {owner && (
           <div>
@@ -91,6 +127,13 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
             <span className="text-sm text-gray-700">Jhon Doe</span>
           </div>
         )}
+        View Details Button
+        <button
+          onClick={() => navigate(`/properties/get/${id}`)}
+          className="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
+        >
+          View Details
+        </button>
       </div>
     </div>
   );

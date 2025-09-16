@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import Alert from "../ui/Alert";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
-import { authApi } from "../../api/authApi";
-import Input from "../ui/Input";
-import { Button } from "../ui/Button";
+import { authApi, type User } from "../../api/authApi";
+import api from "@/api/api";
 
 const schema = Yup.object().shape({
   name: Yup.string().optional(),
@@ -19,17 +17,14 @@ const schema = Yup.object().shape({
 });
 
 export default function EditProfile() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
+  const [profile, setProfile] = useState<User | null>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | undefined>(
+    undefined
+  );
   const navigate = useNavigate();
-  const [initialValues, setInitialValues] = useState({
-    name: "",
-    email: "",
-    password: "",
-    role: "Customer",
-    avatarUrl: "",
-  });
   const [loading, setLoading] = useState(true);
-  const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -38,26 +33,16 @@ export default function EditProfile() {
     }
   }, [user, navigate]);
 
-  //   fetch profile'
+  //   fetch profile
   useEffect(() => {
     async function fetchProfile() {
       if (!user) return;
       try {
-        const response = await authApi.getProfile();
-        console.log(response.data);
-
-        if (response) {
-          setInitialValues({
-            name: response.data.name || "",
-            email: response.data.email || "",
-            password: "",
-            role: response.data.role || "Customer",
-            avatarUrl: response.data.avatarUrl || "default.png",
-          });
-        }
-      } catch (error: any) {
-        setError("failed to load profile");
-        console.log(error);
+        const res = await authApi.getProfile(user.id);
+        setProfile(res.data);
+        setAvatarPreview(res.data.avatarUrl);
+      } catch {
+        setError("Failed to load profile");
       } finally {
         setLoading(false);
       }
@@ -65,165 +50,155 @@ export default function EditProfile() {
     fetchProfile();
   }, [user]);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0] || null;
+    if (selectedFile) {
+      setFile(selectedFile);
+      setAvatarPreview(URL.createObjectURL(selectedFile));
+    }
+  };
+
+  const handleDeleteAvatar = async () => {
+    if (!profile) return;
+    try {
+      await api.delete(`/users/${profile.id}/deleteavatar`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setAvatarPreview("");
+    } catch {
+      setError("Failed to delete User");
+    }
+  };
+
   if (loading)
     return <p className="text-center mt-10">Loading profile......</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-lg rounded-xl">
-      <h2>Edit Profile</h2>
-      {success && <Alert type="success" message={success} />}
-      {error && <Alert type="error" message={error} />}
+    <div className="max-w-xl mx-auto p-6 bg-white shadow rounded-lg">
+      <h2 className="text-2xl font-semibold mb-4">Edit Profile</h2>
 
+      {/* Avatar Preview */}
+      <div className="flex flex-col items-center mb-4">
+        {avatarPreview ? (
+          <img
+            src={avatarPreview}
+            alt="Avatar Preview"
+            className="w-24 h-24 rounded-full object-cover mb-2"
+          />
+        ) : (
+          <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mb-2">
+            No Avatar
+          </div>
+        )}
+        <input type="file" accept="image/*" onChange={handleFileChange} />
+        {avatarPreview && (
+          <button
+            type="button"
+            onClick={handleDeleteAvatar}
+            className="text-red-500 mt-2 text-sm"
+          >
+            Remove Avatar
+          </button>
+        )}
+      </div>
+
+      {/* Formik Form */}
       <Formik
-        enableReinitialize
-        initialValues={initialValues}
+        initialValues={{
+          name: profile?.name || "",
+          email: profile?.email || "",
+          role: profile?.role || "Customer",
+          avatarUrl: profile?.avatarUrl || "",
+        }}
         validationSchema={schema}
-        onSubmit={async (values, { setSubmitting }) => {
-          setError(null);
-          setSuccess(null);
+        enableReinitialize
+        onSubmit={async (values) => {
+          if (!profile) return;
           try {
-            if (!user) throw new Error("user not logged in");
-            // only send password if user typed something
-            const payload: any = {
-              name: values.name,
-              email: values.email,
-              role: values.role,
-              avatarUrl: values.avatarUrl,
-            };
-            if (values.password) {
-              payload.password = values.password;
+            // Update user profile
+            await api.patch(
+              `/users/profile/${profile.id}`,
+              {
+                name: values.name,
+                email: values.email,
+                role: values.role,
+              },
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            // Upload avatar if file selected
+            if (file) {
+              const formDataObj = new FormData();
+              formDataObj.append("file", file);
+              await api.post(`/users/${profile.id}/avatar`, formDataObj, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "multipart/form-data",
+                },
+              });
             }
-            // await authApi.updateUser(user.id);
-            setSuccess("Profile updated");
-          } catch (error: any) {
-            setError(error.response?.data?.message || "updated failed");
+            alert("Profile updated successfully");
+            navigate("/profile");
+          } catch {
+            setError("Failed to update profile");
           }
-          setSubmitting(false);
         }}
       >
-        {({ isSubmitting, values }) => (
-          <Form className="flex flex-col gap-4">
-            {/* Name */}
+        {({ isSubmitting }) => (
+          <Form className="space-y-3">
             <div>
               <Field
-                as={Input}
+                type="text"
                 name="name"
-                label="Name"
-                placeholder="Enter your name"
+                placeholder="Name"
+                className="w-full border rounded p-2"
               />
               <ErrorMessage
                 name="name"
                 component="div"
-                className="text-red-500 text-sm mt-1"
+                className="text-red-500 text-sm"
               />
             </div>
 
-            {/* Email */}
             <div>
               <Field
-                as={Input}
+                type="email"
                 name="email"
-                label="Email"
-                placeholder="Enter your email"
+                placeholder="Email"
+                className="w-full border rounded p-2"
               />
               <ErrorMessage
                 name="email"
                 component="div"
-                className="text-red-500 text-sm mt-1"
+                className="text-red-500 text-sm"
               />
             </div>
 
-            {/*  */}
             <div>
-              <Field
-                as={Input}
-                name="password"
-                label="Password"
-                type="password"
-                placeholder="Enter your password"
-              />
-              <ErrorMessage
-                name="password"
-                component="div"
-                className="text-red-500 text-sm mt-1"
-              />
-            </div>
-
-            {/*  */}
-            <div>
-              <Field name="avatarUrl">
-                {({ field, form }: any) => (
-                  <div className="flex flex-col gap-2">
-                    <label className="font-medium mb-1">Profile Picture</label>
-                    {/* Hidden file input */}
-                    <input
-                      id="avatarUrl"
-                      name="avatarUrl"
-                      type="file"
-                      accept="image/*"
-                      style={{ display: "none" }}
-                      onChange={(event) => {
-                        const file = event.currentTarget.files?.[0] || null;
-                        form.setFieldValue("avatarUrl", file);
-                      }}
-                    />
-
-                    {/* Custom button acting as label */}
-                    <label
-                      htmlFor="avatarUrl"
-                      className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 w-max text-center"
-                    >
-                      Choose Image
-                    </label>
-                    {/* Show selected file name */}
-                    {field.value && (
-                      <span className="text-sm text-gray-700 mt-1">
-                        Selected file: {(field.value as File).name}
-                      </span>
-                    )}
-                    {/* Error display */}
-                    {form.errors.avatarUrl && form.touched.avatarUrl && (
-                      <span className="text-red-500">
-                        {form.errors.avatarUrl}
-                      </span>
-                    )}
-                  </div>
-                )}
-              </Field>
-              {values.avatarUrl && (
-                <div className="mt-3 flex justify-center">
-                  <img
-                    src={values.avatarUrl}
-                    alt="Preview"
-                    className="w-20 h-20 rounded-full border object-cover"
-                    onLoad={(e) =>
-                      URL.revokeObjectURL((e.target as HTMLImageElement).src)
-                    } // clean up memory
-                  />
-                </div>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-gray-700 mb-1">Role</label>
               <Field
                 as="select"
                 name="role"
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full border rounded p-2"
               >
                 <option value="Customer">Customer</option>
                 <option value="Owner">Owner</option>
+                <option value="Admin">Admin</option>
               </Field>
               <ErrorMessage
                 name="role"
                 component="div"
-                className="text-red-500 text-sm mt-1"
+                className="text-red-500 text-sm"
               />
             </div>
 
-            <Button type="submit" variant="primary" disabled={isSubmitting}>
-              {isSubmitting ? "saving...." : "Save changes"}
-            </Button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+            >
+              {isSubmitting ? "Saving..." : "Save Changes"}
+            </button>
           </Form>
         )}
       </Formik>

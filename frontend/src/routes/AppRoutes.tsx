@@ -7,7 +7,7 @@ import Login from "../page/auth/Login";
 import Register from "../page/auth/Register";
 import Contact from "../page/Contact";
 import Home from "../page/Home";
-import type { JSX } from "react";
+// import type { JSX } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import EditProfile from "../components/profile/EditProfile";
 import PropertyList from "../page/properties/PropertyListPage";
@@ -15,10 +15,22 @@ import PropertyList from "../page/properties/PropertyListPage";
 import PropertyCreate from "@/page/properties/PropertyCreate";
 import PropertyEdit from "@/page/properties/PropertyEditPage";
 import { PropertyDetail } from "@/page/properties/PropertyDetail";
+import FavoritePage from "@/page/favorite/FavoritePage";
+import Dashboard from "@/page/AdminDashboard";
+import PaymentCard from "@/page/payment/Payment";
 
-function PrivateRoute({ children }: { children: JSX.Element }) {
+interface Props {
+  children: React.ReactNode;
+  requiredRole?: string;
+}
+
+function PrivateRoute({ children, requiredRole }: Props) {
   const { user } = useAuth();
-  return user ? children : <Navigate to="/login" />;
+  if (!user) return <Navigate to="/login" replace />;
+  if (requiredRole && user.role !== requiredRole)
+    return <Navigate to="/" replace />;
+
+  return <>{children}</>;
 }
 
 export default function AppRoutes() {
@@ -36,6 +48,7 @@ export default function AppRoutes() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/properties" element={<PropertyList />} />
+            <Route path="/payment" element={<PaymentCard />} />
 
             {/* protected routes */}
             <Route
@@ -47,7 +60,7 @@ export default function AppRoutes() {
               }
             />
             <Route
-              path="/profile/:id"
+              path="/users/profile/:id"
               element={
                 <PrivateRoute>
                   <EditProfile />
@@ -80,10 +93,25 @@ export default function AppRoutes() {
                 </PrivateRoute>
               }
             />
+            <Route
+              path="/favourites"
+              element={
+                <PrivateRoute>
+                  <FavoritePage />
+                </PrivateRoute>
+              }
+            />
             {/* <Route path="/properties/:id" element={<PrivateRoute><PropertyDetail /></PrivateRoute>} /> */}
 
             {/* Admin Routes */}
-            {/* <Route path="/admin" element={<AdminRoutes/>}/> */}
+            <Route
+              path="/users/admin-dashboard"
+              element={
+                <PrivateRoute>
+                  <Dashboard />
+                </PrivateRoute>
+              }
+            />
 
             {/* Fallback */}
             {/* <Route path="*" element={<Navigate to="/"}/> */}

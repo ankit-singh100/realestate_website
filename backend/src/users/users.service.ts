@@ -23,15 +23,20 @@ export class UsersService {
 
   // creating user profile
   async getProfile(id: number) {
-    return this.prismaService.user.findUnique({
+    const user = await this.prismaService.user.findUnique({
       where: { id },
       select: {
+        id: true,
         name: true,
+        email: true,
+        role: true,
         avatarUrl: true,
       },
     });
+    if (!user) throw new NotFoundException('User not found');
+    return user;
   }
-  
+
   // finding all the user
   findAll() {
     return this.prismaService.user.findMany({

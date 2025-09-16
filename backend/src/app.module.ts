@@ -8,6 +8,8 @@ import { ConfigModule } from '@nestjs/config';
 import { CloudinaryService } from './cloudinary/cloudinary.service';
 import { PropertiesModule } from './properties/proerties.module';
 import { PropertyImageModule } from './property-image/property-image.module';
+import { FavouritesModule } from './favourites/favourites.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { PropertyImageModule } from './property-image/property-image.module';
     UsersModule,
     PropertiesModule,
     PropertyImageModule,
+    FavouritesModule,
+    PaymentModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, CloudinaryService],

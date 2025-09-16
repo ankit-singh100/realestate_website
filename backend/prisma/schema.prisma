@@ -33,6 +33,19 @@ enum PropertyType{
   Land
 }
 
+enum paymentMethod {
+  CASH
+  BANK_TRANSFER
+  MOBILE_PAYMENT
+}
+
+enum paymentStatus {
+  Pending
+  Completed
+  Failed
+  Refunded
+}
+
 model User {
   id Int @id @default(autoincrement())
   name String
@@ -44,7 +57,8 @@ model User {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   property  Property[]  @relation("userproperties")
-
+  favourite Favourite[]
+  payment Payment[] @relation("userPayment")
 
   @@map("users")
 }
@@ -62,6 +76,8 @@ model Property {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   images PropertyImage[]
+  favourite Favourite[]
+  payment Payment[] @relation("propertyPayment")
 
   @@map("properties")
 }
@@ -72,4 +88,31 @@ model PropertyImage {
   publicId  String?
   propertyId Int
   property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+}
+
+model Favourite {
+  id Int @id @default(autoincrement())
+  userId Int
+  propertyId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("Favourites")
+}
+
+model Payment {
+  id Int @id
+  amount Float
+  currency String @default("Rs")
+  method paymentMethod 
+  status paymentStatus @default(Pending)
+  transactionId String?
+  userId Int
+  propertyId Int
+  user User @relation("userPayment", fields: [userId], references: [id], onDelete: Cascade)
+  property Property @relation("propertyPayment", fields: [propertyId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAT DateTime @updatedAt
+
+  @@map("payment")
 }

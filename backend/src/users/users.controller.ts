@@ -30,9 +30,16 @@ export class UsersController {
   }
 
   @UseGuards(AuthGuard)
-  @Get('profile')
+  @Get('profile/:id')
   getProfile(@Req() req: any) {
     return this.usersService.getProfile(req.payload?.user.id);
+  }
+
+  @UseGuards(AuthGuard, AdminGuard) // Only allow admins
+  @Get('admin-dashboard')
+  getAdminDashboard(@Req() req: any) {
+    // You can fetch additional admin-related data here if needed
+    return this.usersService.getProfile(req.payload.user.id);
   }
 
   @UseGuards(AuthGuard, AdminGuard)
@@ -48,7 +55,7 @@ export class UsersController {
   }
 
   @UseGuards(AuthGuard)
-  @Patch('/profile/:id')
+  @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(+id, updateUserDto);
   }

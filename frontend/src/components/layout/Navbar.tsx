@@ -77,6 +77,13 @@ export function Navbar() {
                     >
                       Profile
                     </NavLink>
+                    <NavLink
+                      to="/favorites"
+                      className="block px-4 py-2 hover:bg-gray-100"
+                      onClick={() => setOpen(false)}
+                    >
+                      Your Favorite
+                    </NavLink>
                     <button
                       onClick={() => {
                         logout();
@@ -86,18 +93,6 @@ export function Navbar() {
                     >
                       Logout
                     </button>
-
-                    {/* Show only if role = admin or owner */}
-                    {user &&
-                      (user.role === "Admin" || user.role === "Owner") && (
-                        <NavLink
-                          to="/properties-add"
-                          className="block px-4 py-2 hover:bg-gray-100"
-                          onClick={() => setOpen(false)}
-                        >
-                          Add Property
-                        </NavLink>
-                      )}
                   </div>
                 )}
               </div>

@@ -1,7 +1,7 @@
 import api from "./api";
 
 export interface User {
-  id: string;
+  id: number;
   name: string;
   email: string;
   avatarUrl?: string;
@@ -28,7 +28,11 @@ export const authApi = {
     localStorage.removeItem("token");
   },
 
-  getProfile: () => api.get<User>("/users/profile"),
+  fetchProfile: () => api.get<User>("/users/profile"),
 
-  updateUser: (id: string) => api.get<AuthResponse>(`/users/${id}`),
+  getProfile: (id: number) => api.get<User>(`/users/profile/${id}`),
+
+  updateUser: (id: string) => api.patch<AuthResponse>(`/users/${id}`),
+
+  getUser: (id: number) => api.get<User>(`/users/${id}`),
 };
