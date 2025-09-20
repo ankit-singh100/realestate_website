@@ -4,8 +4,13 @@ export interface User {
   id: number;
   name: string;
   email: string;
+  password?: string;
+  contact?: string;
   avatarUrl?: string;
   role?: "Owner" | "Admin" | "Customer";
+  createdAt?: string;
+  updatedAt?: string;
+  verified?: boolean;
 }
 
 interface AuthResponse {
@@ -21,6 +26,7 @@ export const authApi = {
     name: string;
     email: string;
     password: string;
+    contact?: string;
     role?: string;
   }) => api.post<AuthResponse>("/auth/register", data),
 
@@ -28,11 +34,22 @@ export const authApi = {
     localStorage.removeItem("token");
   },
 
-  fetchProfile: () => api.get<User>("/users/profile"),
-
   getProfile: (id: number) => api.get<User>(`/users/profile/${id}`),
 
-  updateUser: (id: string) => api.patch<AuthResponse>(`/users/${id}`),
+  getAllUser: () => api.get<User[]>("/users"),
+
+  updateUser: (id: string, data: Partial<User>) =>
+    api.patch<AuthResponse>(`/users/${id}`, data),
+
+  uploadImage: (id: string, fileData: FormData) =>
+    api.post<User>(`/users/avatar/${id}`, fileData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
+
+  deleteAvatar: (id: string | number) =>
+    api.delete(`/users/${id}/deleteavatar`),
 
   getUser: (id: number) => api.get<User>(`/users/${id}`),
 };

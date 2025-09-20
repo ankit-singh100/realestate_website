@@ -1,20 +1,66 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateProertyDto } from './dto/create-proerty.dto';
 import { UpdateProertyDto } from './dto/update-proerty.dto';
 import axios from 'axios';
 
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PaginationQueryDto } from 'src/pagination/paginationdto';
-import { Prisma } from 'generated/prisma';
+import { Prisma, PropertyStatus } from 'generated/prisma';
+import { title } from 'process';
 
 @Injectable()
 export class PropertiesService {
   constructor(private readonly prismaService: PrismaService) {}
   async create(userId: number, createProertyDto: CreateProertyDto) {
     return this.prismaService.property.create({
-      data: { ...createProertyDto, ownerId: userId },
+      data: { ...createProertyDto, ownerId: userId }, // Admin must approve }
     });
   }
+
+  async findByOwner(ownerId: number) {
+    const properties = await this.prismaService.property.findMany({
+      where: { ownerId },
+      include: { images: true },
+    });
+
+    if (!properties.length) {
+      throw new NotFoundException('No properties found for this owner');
+    }
+
+    return properties;
+  }
+
+  // async updatePropertyStatus(
+  //   id: number,
+  //   status: 'onSale' | 'forRental' | 'Sold' | 'Rented',
+  // ) {
+  //   return this.prismaService.property.update({
+  //     where: { id },
+  //     data: { status },
+  //   });
+  // }
+
+  // // Fetch pending properties
+  // async getPendingProperties() {
+  //   return this.prismaService.property
+  //     .findMany({
+  //       where: { status: 'Pending' },
+  //       include: { owner: { select: { id: true, name: true } } },
+  //     })
+  //     .then((props) =>
+  //       props.map((p) => ({
+  //         id: p.id,
+  //         title: p.title,
+  //         status: p.status,
+  //         ownerId: p.ownerId,
+  //         ownerName: p.owner.name,
+  //       })),
+  //     );
+  // }
 
   async findAll(paginationDto: PaginationQueryDto) {
     let {
@@ -65,6 +111,7 @@ export class PropertiesService {
 
     const where: any = {};
 
+    // Search in title or description
     if (search) {
       where.OR = [
         { title: { contains: search, mode: 'insensitive' } },
@@ -79,6 +126,7 @@ export class PropertiesService {
       if (maxPrice !== undefined) where.price.lte = maxPrice;
     }
 
+    // Fetch filtered properties & paginated properties in parallel with total count
     const [properties, total] = await Promise.all([
       this.prismaService.property.findMany({
         skip,

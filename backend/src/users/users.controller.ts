@@ -35,7 +35,7 @@ export class UsersController {
     return this.usersService.getProfile(req.payload?.user.id);
   }
 
-  @UseGuards(AuthGuard, AdminGuard) // Only allow admins
+  @UseGuards(AdminGuard) // Only allow admins
   @Get('admin-dashboard')
   getAdminDashboard(@Req() req: any) {
     // You can fetch additional admin-related data here if needed
@@ -67,8 +67,8 @@ export class UsersController {
   }
 
   @UseGuards(AuthGuard)
-  @Post(':id/avatar')
-  @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
+  @Post('/avatar/:id')
+  @UseInterceptors(FileInterceptor('file'))
   async uploadAvatar(
     @Param('id', ParseIntPipe) id: number,
     @UploadedFile() file: Express.Multer.File,

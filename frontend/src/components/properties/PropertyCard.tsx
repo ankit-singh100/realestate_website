@@ -1,8 +1,7 @@
 import { useAuth } from "@/context/AuthContext";
-import { Heart } from "lucide-react";
+import { Heart, Edit } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-// import image from "../../assets/image/image.jpg";
 
 interface PropertyCardProps {
   id: number;
@@ -11,9 +10,10 @@ interface PropertyCardProps {
   price: number;
   address: string;
   imagesUrl?: { url: string }[];
-  status: "Available" | "Sold" | "Rented" | "Pending";
+  status: "Available" | "Sold" | "Rented";
   type: "House" | "Apartment" | "Land";
   owner?: {
+    id?: number; // owner ID needed for checking
     name: string;
     avatarUrl?: string;
   };
@@ -44,19 +44,21 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     if (!user) {
-      alert("please login to add to favorites");
+      alert("Please login to add to favorites");
       navigate("/login");
+      return;
     }
     e.preventDefault(); // prevent navigation when clicking the heart
     setFavorite((prev) => !prev);
-    if (onToggleFavorite) {
-      onToggleFavorite(id);
-    }
+    if (onToggleFavorite) onToggleFavorite(id);
   };
+
+  const canEdit = user && (user.role === "Admin" || user.id === owner?.id); // only owner or admin
+
   return (
-    <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition p-4 flex flex-col">
+    <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition p-4 flex flex-col relative">
       {/* Property Image */}
-      <Link to={`properties/get/${id}`}>
+      <Link to={`/properties/get/${id}`}>
         <img
           src={imagesUrl?.[0]?.url || "https://via.placeholder.com/400x300"}
           alt={title}
@@ -76,26 +78,27 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
           {type}
         </span>
       </Link>
+
+      {/* Favorite Button */}
+      <button
+        onClick={handleFavoriteClick}
+        className="absolute top-2 right-2 rounded-full p-2 shadow-md hover:bg-gray-300"
+      >
+        <Heart
+          size={20}
+          className={`${
+            favorite ? "fill-red-500 text-red-500" : "text-gray-900 border"
+          }`}
+        />
+      </button>
+
       {/* Content */}
-      <div className="flex-1 flex flex-col justify-betweenmt-3">
-        <div className="relative">
-          <h3 className="text-lg font-semibold line-clamp- mb-3">{title}</h3>
-          {/* Favorite Button */}
-          <button
-            onClick={handleFavoriteClick}
-            className="absolute top-1 right-3 rounded-full p-2 shadow-md hover:bg-gray-300"
-          >
-            <Heart
-              size={20}
-              className={`${
-                favorite ? "fill-red-500 text-red-500" : "text-gray-900 border"
-              }`}
-            />
-          </button>
-          <h3 className="text-black text-sm">{description}</h3>
-          <p className="text-gray-500 text-sm">{address}</p>
-        </div>
-        {/* Price & status */}
+      <div className="flex-1 flex flex-col justify-between mt-3">
+        <h3 className="text-lg font-semibold line-clamp-2">{title}</h3>
+        <p className="text-black text-sm mt-1">{description}</p>
+        <p className="text-gray-500 text-sm mt-1">{address}</p>
+
+        {/* Price & Status */}
         <div className="mt-3 flex items-center justify-between">
           <span className="text-blue-600 font-bold">
             Rs.{price.toLocaleString()}
@@ -106,34 +109,45 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
                 ? "bg-green-100 text-green-700"
                 : status === "Sold"
                 ? "bg-red-100 text-red-700"
-                : status === "Pending"
-                ? "bg-yellow-100 text-yellow-700"
                 : status === "Rented"
-                ? "bg-red-100 text-red-100"
+                ? "bg-purple-100 text-purple-700"
                 : "bg-gray-100 text-gray-700"
             }`}
           >
             {status}
           </span>
         </div>
+
         {/* Owner Info */}
         {owner && (
-          <div>
+          <div className="flex items-center gap-2 mt-3">
             <img
               src={owner.avatarUrl || "https://via.placeholder.com/40"}
               alt={owner.name}
               className="w-8 h-8 rounded-full object-cover"
             />
-            <span className="text-sm text-gray-700">Jhon Doe</span>
+            <span className="text-sm text-gray-700">{owner.name}</span>
           </div>
         )}
-        View Details Button
-        <button
-          onClick={() => navigate(`/properties/get/${id}`)}
-          className="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
-        >
-          View Details
-        </button>
+
+        {/* Action Buttons */}
+        <div className="flex gap-2 mt-4">
+          <button
+            onClick={() => navigate(`/properties/get/${id}`)}
+            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex-1"
+          >
+            View Details
+          </button>
+
+          {canEdit && (
+            <button
+              onClick={() => navigate(`/properties/edit/${id}`)}
+              className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg flex-1 flex items-center justify-center gap-1"
+            >
+              <Edit size={16} /> Edit
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

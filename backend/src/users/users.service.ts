@@ -29,8 +29,10 @@ export class UsersService {
         id: true,
         name: true,
         email: true,
+        contact: true,
         role: true,
         avatarUrl: true,
+        createdAt: true,
       },
     });
     if (!user) throw new NotFoundException('User not found');
@@ -52,7 +54,8 @@ export class UsersService {
   }
 
   // finding individual user according to their unique id
-  findOne(id: number) {
+  async findOne(id: number) {
+    await this.getUser(id);
     return this.prismaService.user.findUnique({
       where: { id },
     });

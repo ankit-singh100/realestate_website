@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 interface AuthContextType {
   user: User | null;
+  setUser: (user: User) => void;
   loading: boolean;
   token: string | null;
   login: (name: string, password: string) => Promise<User>;
@@ -11,6 +12,7 @@ interface AuthContextType {
     name: string,
     email: string,
     password: string,
+    contact?: string,
     role?: "Customer" | "Owner" | "Admin"
   ) => Promise<void>;
   logout: () => Promise<void>;
@@ -37,7 +39,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setLoading(false);
         return;
       }
-      await authApi.fetchProfile();
       setLoading(false);
     };
     init();
@@ -58,9 +59,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     name: string,
     email: string,
     password: string,
+    contact?: string,
     role?: "Customer" | "Admin" | "Owner"
   ): Promise<void> => {
-    const res = await authApi.register({ name, email, password, role });
+    const res = await authApi.register({
+      name,
+      email,
+      password,
+      role,
+      contact,
+    });
     setUser(res.data.user);
     setToken(res.data.token);
     localStorage.setItem("token", res.data.token);
@@ -110,6 +118,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     <AuthContext.Provider
       value={{
         user,
+        setUser,
         token,
         loading,
         login,

@@ -22,9 +22,11 @@ enum Role {
 }
 
 enum PropertyStatus {
-  Available
-  Sold
+  onSale
   Pending
+  Sold
+  forRental
+  Rented
 }
 
 enum PropertyType{
@@ -34,9 +36,10 @@ enum PropertyType{
 }
 
 enum paymentMethod {
-  CASH
-  BANK_TRANSFER
-  MOBILE_PAYMENT
+KHALTI
+CASH
+BANK_TRANSFER
+MOBILE_PAYMENT
 }
 
 enum paymentStatus {
@@ -51,6 +54,7 @@ model User {
   name String
   email String @unique
   password String
+  contact String?
   role Role @default(Customer)
   avatarUrl String? //Profile pic url
   avatarId String?
@@ -58,10 +62,12 @@ model User {
   updatedAt   DateTime @updatedAt
   property  Property[]  @relation("userproperties")
   favourite Favourite[]
-  payment Payment[] @relation("userPayment")
+   interests  Interest[]
+  payment Payment[] 
 
   @@map("users")
 }
+
 
 model Property {
   id Int @default(autoincrement()) @id
@@ -77,10 +83,22 @@ model Property {
   updatedAt DateTime  @updatedAt
   images PropertyImage[]
   favourite Favourite[]
-  payment Payment[] @relation("propertyPayment")
+  interests  Interest[]
+  payment Payment[] 
 
   @@map("properties")
 }
+model Interest {
+  id         Int       @id @default(autoincrement())
+  user       User      @relation(fields: [userId], references: [id])
+  userId     Int
+  read  Boolean  @default(false)
+  property   Property  @relation(fields: [propertyId], references: [id])
+  propertyId Int
+
+  @@unique([userId, propertyId])
+}
+
 
 model PropertyImage {
   id Int @default(autoincrement()) @id
@@ -101,18 +119,17 @@ model Favourite {
 }
 
 model Payment {
-  id Int @id
+  id Int @id @default(autoincrement())
+  userId  Int
+  propertyId  Int
   amount Float
-  currency String @default("Rs")
-  method paymentMethod 
+  khaltiToken String
   status paymentStatus @default(Pending)
-  transactionId String?
-  userId Int
-  propertyId Int
-  user User @relation("userPayment", fields: [userId], references: [id], onDelete: Cascade)
-  property Property @relation("propertyPayment", fields: [propertyId], references: [id], onDelete: Cascade)
+  method paymentMethod @default(KHALTI)
+  user User @relation( fields: [userId], references: [id], onDelete: Cascade)
+  property Property @relation( fields: [propertyId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAT DateTime @updatedAt
 
-  @@map("payment")
+  @@map("payments")
 }

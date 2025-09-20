@@ -10,7 +10,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="flex flex-col items-center mt-10 space-y-4">
+    <div className="flex flex-col justify-center items-center mt-10 space-y-4">
       <img
         src={user.avatarUrl || "https://i.pravatar.cc/150"}
         alt={user.name}

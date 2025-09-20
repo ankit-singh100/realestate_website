@@ -6,9 +6,10 @@ export interface Property {
   description?: string;
   price: number;
   address: string;
-  status: "Available" | "Sold" | "Pending";
+  status: "onSale" | "Sold" | "forRental" | "Rented" | "Pending";
   type: "House" | "Apartment" | "Land";
-  images?: { id: number; url: string }[];
+  images?: { id: number; url: string; contact: string }[];
+  ownerId?: [];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -29,11 +30,22 @@ interface paginationProperties {
 
 const propertyApi = {
   // get all properties with optional filters
-  getAll: async (page = 1, limit = 10): Promise<paginationProperties> => {
+  getAll: async (
+    page = 1,
+    limit = 10,
+    search?: string
+  ): Promise<paginationProperties> => {
     const res = await api.get<paginationProperties>("/properties", {
-      params: { page, limit },
+      params: { page, limit, search },
     });
     return res.data;
+  },
+
+  // new filtered search API
+  getAllFiltered: async (filters: { search?: string }) => {
+    const query = new URLSearchParams(filters as any).toString();
+    const res = await api.get<paginationProperties>(`/properties?${query}`);
+    return res.data; // should return { data, totalProperties, ... } from backend
   },
 
   //   get single property by id
@@ -43,7 +55,7 @@ const propertyApi = {
   },
 
   // Create property
-  create: async (data: Omit<Property, "id" | "createdAt" | "updatedAt">) => {
+  create: async (data: Omit<Property, "id" | "updatedAt">) => {
     const res = await api.post<Property>("/properties", data);
     return res.data;
   },
@@ -61,6 +73,12 @@ const propertyApi = {
   delete: async (id: number) => {
     const res = await api.delete<{ message: string }>(`/properties/${id}`);
     return res.data;
+  },
+
+  // Fetch properties for a specific owner
+  getByOwner: async (ownerId: number) => {
+    const res = await api.get(`/properties/owner/${ownerId}`);
+    return res.data as Property[];
   },
 
   // Add propertyimage
@@ -87,6 +105,11 @@ const propertyApi = {
     const res = await api.delete<PropertyImage>(
       `/property-image/${propertyId}`
     );
+    return res.data;
+  },
+
+  markInterested: async (propertyId: number) => {
+    const res = await api.post(`/properties/${propertyId}/interested`);
     return res.data;
   },
 };

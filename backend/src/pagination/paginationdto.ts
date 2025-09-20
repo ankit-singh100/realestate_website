@@ -1,10 +1,5 @@
 import { Type } from 'class-transformer';
-import {
-  IsNumber,
-  IsOptional,
-  IsString,
-  Min,
-} from 'class-validator';
+import { IsNumber, IsOptional, IsString, Min } from 'class-validator';
 import { PropertyStatus, PropertyType } from 'generated/prisma';
 
 export class PaginationQueryDto {

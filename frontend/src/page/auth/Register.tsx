@@ -5,10 +5,7 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 import Input from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import {
-  NavLink,
-  useNavigate,
-} from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 // Yup schema
 const registerSchema = Yup.object().shape({
@@ -17,6 +14,12 @@ const registerSchema = Yup.object().shape({
   password: Yup.string()
     .min(6, "Password must be at least 6 character long")
     .required("password is required"),
+  contact: Yup.string()
+    .matches(
+      /^(98|97)\d{8}$/,
+      "Phone number must start with 98 or 97 and be 10 digits long"
+    )
+    .optional(),
   role: Yup.string()
     .oneOf(["Owner", "Customer"], "Invalid role")
     .required("Role is required"),
@@ -35,7 +38,13 @@ export default function Register() {
       {success && <Alert type="success" message={success} />}
 
       <Formik
-        initialValues={{ name: "", email: "", password: "", role: "Customer" }}
+        initialValues={{
+          name: "",
+          email: "",
+          password: "",
+          role: "Customer",
+          contact: "",
+        }}
         validationSchema={registerSchema}
         onSubmit={async (values, { setSubmitting, resetForm }) => {
           setError(null);
@@ -45,6 +54,7 @@ export default function Register() {
               values.name,
               values.email,
               values.password,
+              values.contact,
               values.role as "Customer" | "Owner"
             );
             setSuccess("Registration successful! You can now login!");
@@ -97,6 +107,20 @@ export default function Register() {
               />
               <ErrorMessage
                 name="password"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
+            <div>
+              <Field
+                as={Input}
+                name="contact"
+                label="Contact"
+                placeholder="Enter your number"
+                type="contact"
+              />
+              <ErrorMessage
+                name="contact"
                 component="div"
                 className="text-red-500 text-sm mt-1"
               />

@@ -9,7 +9,10 @@ import { CloudinaryService } from './cloudinary/cloudinary.service';
 import { PropertiesModule } from './properties/proerties.module';
 import { PropertyImageModule } from './property-image/property-image.module';
 import { FavouritesModule } from './favourites/favourites.module';
-import { PaymentModule } from './payment/payment.module';
+import { InterestService } from './interest/interest.service';
+import { InterestModule } from './interest/interest.module';
+import { InterestController } from './interest/interest.controller';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -20,9 +23,9 @@ import { PaymentModule } from './payment/payment.module';
     PropertiesModule,
     PropertyImageModule,
     FavouritesModule,
-    PaymentModule,
+    PaymentsModule,
   ],
-  controllers: [AuthController],
-  providers: [AuthService, CloudinaryService],
+  controllers: [AuthController, InterestController],
+  providers: [AuthService, CloudinaryService, InterestService],
 })
 export class AppModule {}

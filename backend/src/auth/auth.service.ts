@@ -42,8 +42,10 @@ export class AuthService {
         id: user.id,
         name: user.name,
         email: user.email,
+        contact: user.contact,
         role: user.role,
         avatarUrl: user.avatarUrl,
+        createdAt: user.createdAt,
       },
     };
   }

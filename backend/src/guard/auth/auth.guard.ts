@@ -37,6 +37,7 @@ export class AuthGuard implements CanActivate {
         secret: process.env.SECRET_KEY,
       });
       request['payload'] = payload;
+      console.log(payload);
     } catch (err) {
       throw new UnauthorizedException(err);
     }

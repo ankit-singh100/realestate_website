@@ -1,6 +1,4 @@
 import ProfileMenu from "../components/profile/ProfileMenu";
-import { Footer } from "../components/layout/Footer";
-import { Navbar } from "../components/layout/Navbar";
 import { useAuth } from "../context/AuthContext";
 import About from "../page/About";
 import Login from "../page/auth/Login";
@@ -18,6 +16,10 @@ import { PropertyDetail } from "@/page/properties/PropertyDetail";
 import FavoritePage from "@/page/favorite/FavoritePage";
 import Dashboard from "@/page/AdminDashboard";
 import PaymentCard from "@/page/payment/Payment";
+import OwnerDashboard from "@/page/OwnerDashboard";
+import MainLayout from "@/components/layout/MainLayout";
+// import ProfilePage from "@/page/Profile/ProfilePage";
+// import LayoutWrapper from "@/page/LayoutWrapper";
 
 interface Props {
   children: React.ReactNode;
@@ -36,11 +38,9 @@ function PrivateRoute({ children, requiredRole }: Props) {
 export default function AppRoutes() {
   return (
     <BrowserRouter>
-      <div className="flex flex-col min-h-screen">
-        <Navbar />
-
-        <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <Routes>
+      <main>
+        <Routes>
+          <Route element={<MainLayout />}>
             {/* Public */}
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
@@ -49,10 +49,26 @@ export default function AppRoutes() {
             <Route path="/register" element={<Register />} />
             <Route path="/properties" element={<PropertyList />} />
             <Route path="/payment" element={<PaymentCard />} />
+            <Route
+              path="/properties/owner/:id"
+              element={
+                <PrivateRoute>
+                  <OwnerDashboard />
+                </PrivateRoute>
+              }
+            />
 
             {/* protected routes */}
+            {/* <Route
+              path="/users"
+              element={
+                <PrivateRoute>
+                  <ProfilePage />
+                </PrivateRoute>
+              }
+            /> */}
             <Route
-              path="/profile"
+              path="/users/profile/:id"
               element={
                 <PrivateRoute>
                   <ProfileMenu />
@@ -60,7 +76,7 @@ export default function AppRoutes() {
               }
             />
             <Route
-              path="/users/profile/:id"
+              path="/users/:id"
               element={
                 <PrivateRoute>
                   <EditProfile />
@@ -101,25 +117,19 @@ export default function AppRoutes() {
                 </PrivateRoute>
               }
             />
-            {/* <Route path="/properties/:id" element={<PrivateRoute><PropertyDetail /></PrivateRoute>} /> */}
+          </Route>
 
-            {/* Admin Routes */}
-            <Route
-              path="/users/admin-dashboard"
-              element={
-                <PrivateRoute>
-                  <Dashboard />
-                </PrivateRoute>
-              }
-            />
-
-            {/* Fallback */}
-            {/* <Route path="*" element={<Navigate to="/"}/> */}
-          </Routes>
-        </main>
-
-        <Footer />
-      </div>
+          {/* Admin Routes */}
+          <Route
+            path="/users/admin-dashboard"
+            element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            }
+          />
+        </Routes>
+      </main>
     </BrowserRouter>
   );
 }

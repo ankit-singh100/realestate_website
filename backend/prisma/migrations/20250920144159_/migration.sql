@@ -1,19 +1,15 @@
 -- CreateEnum
-CREATE TYPE "public"."paymentMethod" AS ENUM ('CASH', 'BANK_TRANSFER', 'MOBILE_PAYMENT');
-
--- CreateEnum
 CREATE TYPE "public"."paymentStatus" AS ENUM ('Pending', 'Completed', 'Failed', 'Refunded');
 
 -- CreateTable
 CREATE TABLE "public"."payment" (
-    "id" INTEGER NOT NULL,
-    "amount" DOUBLE PRECISION NOT NULL,
-    "currency" TEXT NOT NULL DEFAULT 'Rs',
-    "method" "public"."paymentMethod" NOT NULL,
-    "status" "public"."paymentStatus" NOT NULL DEFAULT 'Pending',
-    "transactionId" TEXT,
+    "id" SERIAL NOT NULL,
     "userId" INTEGER NOT NULL,
     "propertyId" INTEGER NOT NULL,
+    "amount" DOUBLE PRECISION NOT NULL,
+    "khaltiToken" TEXT NOT NULL,
+    "status" "public"."paymentStatus" NOT NULL DEFAULT 'Pending',
+    "method" "public"."paymentMethod" NOT NULL DEFAULT 'KHALTI',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAT" TIMESTAMP(3) NOT NULL,
 

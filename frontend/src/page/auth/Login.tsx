@@ -38,6 +38,8 @@ export default function Login() {
             // Redirect based on role
             if (loggedUser.role === "Admin") {
               navigate("/users/admin-dashboard");
+            } else if (loggedUser.role === "Owner") {
+              navigate(`/properties/owner/${loggedUser.id}`);
             } else {
               navigate("/");
             }
